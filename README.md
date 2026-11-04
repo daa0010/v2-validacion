@@ -23,7 +23,7 @@ Al terminar sabrás:
 
 1. Haz un **fork** de este repositorio (botón *Fork*) y clona tu fork:
    ```bash
-   git clone https://github.com/TU_USUARIO/edadCaninav1.git
+   git clone [https://github.com/TU_USUARIO/edadCaninav1.git](https://github.com/TU_USUARIO/edadCaninav1.git)
    ```
 2. Ábrelo en Android Studio y ejecútalo en el emulador.
 
@@ -33,15 +33,17 @@ Antes de arreglar nada, comprueba qué falla. Prueba estas entradas y anota qué
 
 | Entrada | ¿Qué ocurre? |
 |---|---|
-| *(campo vacío)* | |
-| `abc` | |
-| `3.5` | |
-| `0` | |
-| `-4` | |
-| `99999999999` | |
-| `400000000` | |
+| *(campo vacío)* | La app se cierra por `java.lang.NumberFormatException: For input string: ""`. |
+| `abc` | La app se cierra por `java.lang.NumberFormatException: For input string: "abc"`. |
+| `3.5` | La app se cierra por `java.lang.NumberFormatException` al no admitir decimales. |
+| `0` | No se cierra, pero muestra un resultado ilógico: "Si tu perro fuera humano tendría 0 años". |
+| `-4` | No se cierra, pero calcula una edad negativa imposible: "Si tu perro fuera humano tendría -28 años". |
+| `99999999999` | La app se cierra por `java.lang.NumberFormatException` al superar el límite de un `int` de 32 bits (`2147483647`). |
+| `400000000` | No se cierra al convertir el número, pero desborda al multiplicar por 7 (*integer overflow*) y muestra un resultado negativo (`-1494967296`). |
 
-> 💡 Cuando la app se cierre, abre el **Logcat** y busca la excepción. ¿Qué método la lanza? ¿Por qué el último caso no cierra la app pero da un resultado absurdo?
+> 💡 **Cuando la app se cierre, abre el Logcat y busca la excepción. ¿Qué método la lanza? ¿Por qué el último caso no cierra la app pero da un resultado absurdo?**
+> - **¿Qué método la lanza?**: El método `Integer.parseInt(String s)`.
+> - **¿Por qué el último caso no cierra la app pero da un resultado absurdo?**: Porque `400000000` cabe dentro del rango de un entero de 32 bits (`Integer.MAX_VALUE = 2.147.483.647`), por lo que `Integer.parseInt()` funciona sin lanzar excepción. Sin embargo, al multiplicarlo por 7 el resultado (`2.800.000.000`) supera el límite máximo permitido, produciendo un desbordamiento aritmético (*overflow*) en binario que da la vuelta hacia los números negativos.
 
 ## Paso 2 · Crea la rama de trabajo
 
@@ -71,7 +73,9 @@ En `res/values/strings.xml` añade tres textos nuevos:
 <string name="error_rango">La edad debe estar entre %1$d y %2$d años</string>
 ```
 
-> ❓ ¿Qué significan `%1$d` y `%2$d`? ¿En qué orden se rellenan?
+> ❓ **¿Qué significan `%1$d` y `%2$d`? ¿En qué orden se rellenan?**
+> - Son especificadores de formato posicionales: `%` indica el inicio del marcador, `1$` y `2$` señalan la posición del primer y segundo argumento respectivamente, y `d` indica que el valor a formatear es un número entero decimal.
+> - Se rellenan en el orden en que se pasan los parámetros al llamar a `getString(R.string.error_rango, EDAD_MINIMA, EDAD_MAXIMA)`: `EDAD_MINIMA` sustituye a `%1$d` y `EDAD_MAXIMA` sustituye a `%2$d`.
 
 ## Paso 5 · Restringe la entrada desde el layout
 
@@ -121,7 +125,8 @@ ageEdit = findViewById(R.id.age_input);
 resultText = findViewById(R.id.result_text);
 ```
 
-> ❓ ¿Qué pasaría si dejaras `EditText ageEdit = findViewById(...)` dentro de `onCreate()`?
+> ❓ **¿Qué pasaría si dejaras `EditText ageEdit = findViewById(...)` dentro de `onCreate()`?**
+> - Ocurriría un sombreado de variables (*variable shadowing*): se crearía una variable local llamada `ageEdit` que solo existiría dentro de `onCreate()`, dejando el atributo de la clase con valor `null`. Al pulsar el botón e intentar usar `ageEdit` desde `calcularEdad()`, la app se cerraría lanzando un `NullPointerException`.
 
 ## Paso 8 · Saca la lógica del botón a un método
 
@@ -156,7 +161,8 @@ Implementa el método siguiendo este orden. En cuanto algo falle, llama a `mostr
    ```
 5. **Todo correcto**: quita el error del campo (`setError(null)`), calcula `age * FACTOR_CANINO` y muestra el resultado con `tu_edad_format`.
 
-> ❓ ¿Por qué limitar la edad a 30 evita también el desbordamiento que viste en el Paso 1?
+> ❓ **¿Por qué limitar la edad a 30 evita también el desbordamiento que viste en el Paso 1?**
+> - Porque el cálculo máximo posible pasa a ser `30 * 7 = 210`, una cifra muy por debajo del límite máximo que soporta un entero de 32 bits en Java (`2.147.483.647`), haciendo imposible que se produzca un *integer overflow*.
 
 ## Paso 11 · Vuelve a probar
 
@@ -170,7 +176,8 @@ Comprueba que **la app nunca se cierra**:
 | `1` | "Si tu perro fuera humano tendría 7 años" |
 | `30` | "Si tu perro fuera humano tendría 210 años" |
 
-> 💡 Con el teclado numérico no puedes escribir `abc` ni `-4`. ¿Cómo comprobarías que el `try/catch` funciona? (Pista: quita `inputType` un momento.)
+> 💡 **Con el teclado numérico no puedes escribir `abc` ni `-4`. ¿Cómo comprobarías que el `try/catch` funciona? (Pista: quita `inputType` un momento.)**
+> - Quitando temporalmente el atributo `android:inputType="number"` del `EditText` en `activity_main.xml` para poder usar el teclado alfanumérico completo, o copiando texto como `"abc"` o `"-4"` desde otra app y pegándolo directamente en el cuadro de texto.
 
 ## Paso 12 · Guarda y sube tu trabajo
 
@@ -186,8 +193,8 @@ Comprueba en GitHub que tu fork tiene ahora dos ramas: `main` y `v2-validacion`.
 
 ## ✅ Lista de comprobación
 
-- [ ] La app no se cierra con ninguna entrada.
-- [ ] Todos los textos están en `strings.xml` (ningún aviso *Hardcoded string*).
-- [ ] No quedan números mágicos en `MainActivity`.
-- [ ] `onCreate()` solo prepara la pantalla; la lógica está en `calcularEdad()`.
-- [ ] El trabajo está en la rama `v2-validacion`, no en `main`.
+- [x] La app no se cierra con ninguna entrada.
+- [x] Todos los textos están en `strings.xml` (ningún aviso *Hardcoded string*).
+- [x] No quedan números mágicos en `MainActivity`.
+- [x] `onCreate()` solo prepara la pantalla; la lógica está en `calcularEdad()`.
+- [x] El trabajo está en la rama `v2-validacion`, no en `main`.
