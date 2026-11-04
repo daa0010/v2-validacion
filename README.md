@@ -126,7 +126,7 @@ resultText = findViewById(R.id.result_text);
 ```
 
 > ❓ **¿Qué pasaría si dejaras `EditText ageEdit = findViewById(...)` dentro de `onCreate()`?**
-> - Ocurriría un sombreado de variables (*variable shadowing*): se crearía una variable local llamada `ageEdit` que solo existiría dentro de `onCreate()`, dejando el atributo de la clase con valor `null`. Al pulsar el botón e intentar usar `ageEdit` desde `calcularEdad()`, la app se cerraría lanzando un `NullPointerException`.
+> - Se crearía una variable local llamada `ageEdit` que solo existiría dentro de `onCreate()`, dejando el atributo de la clase con valor `null`. Al pulsar el botón e intentar usar `ageEdit` desde `calcularEdad()`, la app se cerraría lanzando un `NullPointerException`.
 
 ## Paso 8 · Saca la lógica del botón a un método
 
