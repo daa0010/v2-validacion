@@ -7,60 +7,56 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import es.davante.edadcanina.databinding.ActivityMainBinding;
+import es.davante.edadcanina.modelo.EdadCaninaModelo;
+import es.davante.edadcanina.modelo.Validacion;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int FACTOR_CANINO = 7;
-    private static final int EDAD_MINIMA = 1;
-    private static final int EDAD_MAXIMA = 30;
-
-    // Guardo el binding como atributo para acceder a todas las vistas con id sin usar findViewById
     private ActivityMainBinding binding;
+    // Instancio el modelo para delegar en él los datos, la validación y el cálculo
+    private EdadCaninaModelo modelo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        // Inflo el layout con DataBindingUtil para obtener la instancia generada de ActivityMainBinding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        modelo = new EdadCaninaModelo();
 
-        // Uso el campo generado btnCalc en camelCase para detectar cualquier fallo de id al compilar
         binding.btnCalc.setOnClickListener(v -> calcularEdad());
     }
 
     private void calcularEdad() {
-        // Leo el texto desde el binding y aplico trim() para que los espacios en blanco no cuenten como entrada válida
-        String ageString = binding.ageInput.getText().toString().trim();
+        // Paso el texto actual al modelo y le pido que evalúe las reglas de negocio
+        modelo.setEdadTexto(binding.ageInput.getText().toString());
+        Validacion estado = modelo.calcular();
 
-        // Compruebo primero si está vacío para no intentar convertir una cadena sin contenido
-        if (ageString.isEmpty()) {
-            mostrarError(getString(R.string.error_vacio));
-            return;
+        // Traduzco el estado devuelto por el modelo a elementos visuales según el idioma del dispositivo
+        switch (estado) {
+            case OK:
+                binding.ageInput.setError(null);
+                binding.resultText.setText(getString(R.string.tu_edad_format, modelo.getEdadHumana()));
+                break;
+            case VACIO:
+                mostrarError(getString(R.string.error_vacio));
+                break;
+            case NO_NUMERO:
+                mostrarError(getString(R.string.error_no_numero));
+                break;
+            case FUERA_RANGO:
+                mostrarError(getString(
+                        R.string.error_rango,
+                        EdadCaninaModelo.EDAD_MINIMA,
+                        EdadCaninaModelo.EDAD_MAXIMA
+                ));
+                break;
+            default:
+                break;
         }
-
-        // Capturo NumberFormatException porque el usuario podría pegar texto no numérico o provocar desbordamiento
-        int age;
-        try {
-            age = Integer.parseInt(ageString);
-        } catch (NumberFormatException e) {
-            mostrarError(getString(R.string.error_no_numero));
-            return;
-        }
-
-        // Acoto entre 1 y 30 años para evitar edades imposibles y garantizar que la multiplicación nunca desborde un int
-        if (age < EDAD_MINIMA || age > EDAD_MAXIMA) {
-            mostrarError(getString(R.string.error_rango, EDAD_MINIMA, EDAD_MAXIMA));
-            return;
-        }
-
-        // Limpio cualquier aviso previo antes de pintar el resultado final en el TextView
-        binding.ageInput.setError(null);
-        int resultado = age * FACTOR_CANINO;
-        binding.resultText.setText(getString(R.string.tu_edad_format, resultado));
     }
 
-    // Centralizo la gestión de errores para no duplicar código y asegurar que siempre se borre un resultado anterior
+    // Centralizo la limpieza y muestra de errores visuales para no repetir código en cada rama del switch
     private void mostrarError(String mensaje) {
         binding.ageInput.setError(mensaje);
         binding.ageInput.requestFocus();
