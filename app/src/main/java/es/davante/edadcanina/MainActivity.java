@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         resultText.setText(getString(R.string.tu_edad_format, resultado));
     }
 
-    // Función auxiliar para centralizar la gestión de errores
+    // Función auxiliar para centralizar la gestión de errores.
     private void mostrarError(String mensaje) {
         ageEdit.setError(mensaje);   // 1. Muestra el mensaje en el EditText
         ageEdit.requestFocus();      // 2. Pone el foco en el EditText
