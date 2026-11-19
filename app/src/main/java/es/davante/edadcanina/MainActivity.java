@@ -17,16 +17,14 @@ public class MainActivity extends AppCompatActivity {
     // Defino constantes para las claves del Bundle y así evitar errores tipográficos al guardar y restaurar
     private static final String CLAVE_EDAD_TEXTO = "edad_texto";
     private static final String CLAVE_CALCULADO = "calculado";
-    private ActivityMainBinding binding;
-    // Guardo el modelo como atributo para poder consultar su estado dentro de onSaveInstanceState
     private EdadCaninaModelo modelo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        // Guardo el modelo como atributo para poder consultar su estado dentro de onSaveInstanceState
+        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         modelo = new EdadCaninaModelo();
 
         // Restauro el estado previo antes de entregar el modelo al binding para que la pantalla nazca ya sincronizada
