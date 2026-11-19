@@ -100,4 +100,12 @@ public class EdadCaninaModelo extends BaseObservable {
         setValidacion(Validacion.OK);
         return validacion;
     }
+
+    // Añado la operación de reinicio en el modelo porque limpiar el estado forma parte de las reglas de la app
+    public void limpiar() {
+        setEdadTexto("");
+        // Aseguro que se limpie cualquier error previo incluso si el campo ya estaba vacío al pulsar Limpiar
+        setEdadHumana(0);
+        setValidacion(Validacion.SIN_CALCULAR);
+    }
 }

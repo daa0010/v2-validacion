@@ -6,6 +6,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
+import es.davante.edadcanina.controlador.EdadCaninaControlador;
 import es.davante.edadcanina.databinding.ActivityMainBinding;
 import es.davante.edadcanina.modelo.EdadCaninaModelo;
 
@@ -23,9 +24,11 @@ public class MainActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         modelo = new EdadCaninaModelo();
 
-        // Conecto el modelo con el binding para que se suscriba a sus avisos y funcione el enlace @={}
+        // Creo el controlador inyectándole el modelo para que gestione las acciones del usuario
+        EdadCaninaControlador controlador = new EdadCaninaControlador(modelo);
+
+        // Conecto tanto el modelo como el controlador con el binding para que los clics viajen desde el XML
         binding.setModelo(modelo);
-        // Delego directamente el clic en el modelo porque la vista ya reacciona automáticamente a los cambios de estado
-        binding.btnCalc.setOnClickListener(v -> modelo.calcular());
+        binding.setControlador(controlador);
     }
 }
