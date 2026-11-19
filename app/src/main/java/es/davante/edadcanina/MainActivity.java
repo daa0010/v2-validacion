@@ -8,7 +8,6 @@ import androidx.databinding.DataBindingUtil;
 
 import es.davante.edadcanina.databinding.ActivityMainBinding;
 import es.davante.edadcanina.modelo.EdadCaninaModelo;
-import es.davante.edadcanina.modelo.Validacion;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,39 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Conecto el modelo con el binding para que se suscriba a sus avisos y funcione el enlace @={}
         binding.setModelo(modelo);
-
-        binding.btnCalc.setOnClickListener(v -> calcularEdad());
-    }
-
-    private void calcularEdad() {
-        Validacion estado = modelo.calcular();
-
-        // Traduzco el estado devuelto por el modelo a elementos visuales según el idioma del dispositivo
-        switch (estado) {
-            case OK:
-                binding.ageInput.setError(null);
-                break;
-            case VACIO:
-                mostrarError(getString(R.string.error_vacio));
-                break;
-            case NO_NUMERO:
-                mostrarError(getString(R.string.error_no_numero));
-                break;
-            case FUERA_RANGO:
-                mostrarError(getString(
-                        R.string.error_rango,
-                        EdadCaninaModelo.EDAD_MINIMA,
-                        EdadCaninaModelo.EDAD_MAXIMA
-                ));
-                break;
-            default:
-                break;
-        }
-    }
-
-    // Centralizo la limpieza y muestra de errores visuales para no repetir código en cada rama del switch
-    private void mostrarError(String mensaje) {
-        binding.ageInput.setError(mensaje);
-        binding.ageInput.requestFocus();
+        // Delego directamente el clic en el modelo porque la vista ya reacciona automáticamente a los cambios de estado
+        binding.btnCalc.setOnClickListener(v -> modelo.calcular());
     }
 }
