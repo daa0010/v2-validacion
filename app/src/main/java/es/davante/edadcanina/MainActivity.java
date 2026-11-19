@@ -24,19 +24,19 @@ public class MainActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         modelo = new EdadCaninaModelo();
 
+        // Conecto el modelo con el binding para que se suscriba a sus avisos y funcione el enlace @={}
+        binding.setModelo(modelo);
+
         binding.btnCalc.setOnClickListener(v -> calcularEdad());
     }
 
     private void calcularEdad() {
-        // Paso el texto actual al modelo y le pido que evalúe las reglas de negocio
-        modelo.setEdadTexto(binding.ageInput.getText().toString());
         Validacion estado = modelo.calcular();
 
         // Traduzco el estado devuelto por el modelo a elementos visuales según el idioma del dispositivo
         switch (estado) {
             case OK:
                 binding.ageInput.setError(null);
-                binding.resultText.setText(getString(R.string.tu_edad_format, modelo.getEdadHumana()));
                 break;
             case VACIO:
                 mostrarError(getString(R.string.error_vacio));
@@ -60,6 +60,5 @@ public class MainActivity extends AppCompatActivity {
     private void mostrarError(String mensaje) {
         binding.ageInput.setError(mensaje);
         binding.ageInput.requestFocus();
-        binding.resultText.setText("");
     }
 }

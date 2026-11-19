@@ -3,6 +3,11 @@ package es.davante.edadcanina.modelo;
 import org.junit.Before;
 import org.junit.Test;
 
+import androidx.databinding.Observable;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class EdadCaninaModeloTest {
@@ -64,5 +69,25 @@ public class EdadCaninaModeloTest {
         modelo.setEdadTexto("7");
         assertEquals(Validacion.SIN_CALCULAR, modelo.getValidacion());
         assertEquals(0, modelo.getEdadHumana());
+    }
+
+    @Test
+    public void calcular_notificaCambiosDePropiedades() {
+        // Registro un observador para comprobar que el modelo avisa a DataBinding al calcular
+        List<Integer> propiedadesNotificadas = new ArrayList<>();
+        modelo.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+            @Override
+            public void onPropertyChanged(Observable sender, int propertyId) {
+                propiedadesNotificadas.add(propertyId);
+            }
+        });
+
+        modelo.setEdadTexto("6");
+        propiedadesNotificadas.clear();
+
+        modelo.calcular();
+
+        // Verifico que se disparen exactamente dos avisos (uno por edadHumana y otro por validacion)
+        assertEquals(2, propiedadesNotificadas.size());
     }
 }
