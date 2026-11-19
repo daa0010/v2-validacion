@@ -1,11 +1,14 @@
 package es.davante.edadcanina.vista;
 
 import android.content.Context;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import androidx.databinding.BindingAdapter;
 
 import es.davante.edadcanina.R;
+import es.davante.edadcanina.controlador.EdadCaninaControlador;
 import es.davante.edadcanina.modelo.EdadCaninaModelo;
 import es.davante.edadcanina.modelo.Validacion;
 
@@ -27,6 +30,31 @@ public final class AdaptadoresVista {
         if (mensaje != null) {
             campo.requestFocus();
         }
+    }
+
+    // Creo un segundo @BindingAdapter para enlazar la tecla Hecho del teclado con el controlador sin ensuciar la Activity
+    @BindingAdapter("accionHecho")
+    public static void configurarAccionHecho(EditText campo, EdadCaninaControlador controlador) {
+        // Evito registrar el listener si el controlador aún es null durante la inicialización del binding
+        if (controlador == null) {
+            campo.setOnEditorActionListener(null);
+            return;
+        }
+
+        campo.setOnEditorActionListener((v, actionId, event) -> {
+            // Detecto tanto la acción IME_ACTION_DONE del teclado virtual como la tecla Intro física
+            boolean esDone = actionId == EditorInfo.IME_ACTION_DONE;
+            boolean esIntroFisico = event != null
+                    && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                    && event.getAction() == KeyEvent.ACTION_DOWN;
+
+            if (esDone || esIntroFisico) {
+                // Delego la acción en el controlador igual que hace el clic del botón Calcular
+                controlador.onCalcularClick();
+                return true;
+            }
+            return false;
+        });
     }
 
     // Traduzco el estado semántico del modelo a un mensaje legible según el idioma del dispositivo

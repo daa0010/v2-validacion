@@ -58,11 +58,13 @@
             android:layout_margin="20dp"
             android:gravity="center"
             android:hint="@string/hint_edad"
+            android:imeOptions="actionDone"
             android:importantForAutofill="no"
             android:inputType="number"
             android:maxLength="2"
             android:text="@={modelo.edadTexto}"
             android:textSize="48sp"
+            app:accionHecho="@{controlador}"
             app:errorValidacion="@{modelo.validacion}" />
 
         <TextView
